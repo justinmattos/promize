@@ -18,15 +18,19 @@ const asyncCallbacker = (firstFunc, secondFunc, ...remArgs) => {
     throw 'asyncError!';
   }
 
-  let data;
+  let data,
+    step = -1,
+    fin = remArgs.length;
 
   const done = (newData) => {
-    let result = secondFunc(newData, done);
-    while (remArgs.length) {
-      let nextFunc = remArgs.shift();
-      result = nextFunc(result, done);
+    if (step < 0) {
+      step++;
+      return secondFunc(newData, done);
+    } else if (step <= remArgs.length) {
+      let nextFunc = remArgs[step];
+      step++;
+      return nextFunc(newData, done);
     }
-    return result;
   };
 
   return firstFunc(data, done);
