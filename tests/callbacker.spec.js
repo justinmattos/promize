@@ -1,11 +1,16 @@
 const { syncCallbacker, asyncCallbacker } = require('../src/callbacker.js');
 
-const createRacifiedPromise = testFunc => Promise.race([
-  new Promise((res, rej) => setTimeout(() => {
-    rej('Youve done something wrong - this occurs if your solution takes over a second.');
-  }, 1000)),
-  new Promise(res => testFunc(res)),
-]);
+const createRacifiedPromise = (testFunc) =>
+  Promise.race([
+    new Promise((res, rej) =>
+      setTimeout(() => {
+        rej(
+          'Youve done something wrong - this occurs if your solution takes over a second.'
+        );
+      }, 1000)
+    ),
+    new Promise((res) => testFunc(res)),
+  ]);
 
 describe('Part 1: Sync/Async Callbacker', () => {
   describe('syncCallbacker', () => {
@@ -18,15 +23,12 @@ describe('Part 1: Sync/Async Callbacker', () => {
     });
 
     it('should error if either argument is not a functon', () => {
-      expect(() => syncCallbacker('a', () => {
-      })).toThrow();
-      expect(() => syncCallbacker(() => {
-      }, 'b')).toThrow();
+      expect(() => syncCallbacker('a', () => {})).toThrow();
+      expect(() => syncCallbacker(() => {}, 'b')).toThrow();
     });
 
     it('should error if it receives less then two arguments', () => {
-      expect(() => syncCallbacker(() => {
-      })).toThrow();
+      expect(() => syncCallbacker(() => {})).toThrow();
     });
 
     describe('Functionality', () => {
@@ -47,16 +49,13 @@ describe('Part 1: Sync/Async Callbacker', () => {
         const someRandomNum = Math.random() * 100;
 
         aSpy = jest.fn(() => someRandomNum);
-        bSpy = jest.fn(a => {
-        });
+        bSpy = jest.fn((a) => {});
 
         syncCallbacker(aSpy, bSpy);
 
         // Looks crazy, just means that bSpy received the someRandomNum as its only argument.
         expect(bSpy.mock.calls).toEqual(
-          expect.arrayContaining(
-            [expect.arrayContaining([someRandomNum])]
-          )
+          expect.arrayContaining([expect.arrayContaining([someRandomNum])])
         );
       });
 
@@ -64,20 +63,20 @@ describe('Part 1: Sync/Async Callbacker', () => {
         const someRandomNum = Math.random() * 100;
 
         aSpy = jest.fn(() => someRandomNum);
-        bSpy = jest.fn(a => a * 2);
+        bSpy = jest.fn((a) => a * 2);
 
         expect(syncCallbacker(aSpy, bSpy)).toEqual(someRandomNum * 2);
       });
     });
 
-    xdescribe('Extra Credit syncCallbacker', () => {
+    describe('Extra Credit syncCallbacker', () => {
       it('can receive any number of functions greater than 2 as an argument', () => {
         const cbs = [() => 1];
 
         const randomNumOfFuncs = Math.ceil(Math.random() * 7) + 3;
 
         for (let i = 0; i < randomNumOfFuncs; ++i) {
-          cbs.push(a => a * 2);
+          cbs.push((a) => a * 2);
         }
 
         expect(syncCallbacker(...cbs)).toEqual(2 ** randomNumOfFuncs);
@@ -95,15 +94,12 @@ describe('Part 1: Sync/Async Callbacker', () => {
     });
 
     it('should error if either argument is not a functon', () => {
-      expect(() => asyncCallbacker('a', () => {
-      })).toThrow();
-      expect(() => asyncCallbacker(() => {
-      }, 'b')).toThrow();
+      expect(() => asyncCallbacker('a', () => {})).toThrow();
+      expect(() => asyncCallbacker(() => {}, 'b')).toThrow();
     });
 
     it('should error if it receives less then two arguments', () => {
-      expect(() => asyncCallbacker(() => {
-      })).toThrow();
+      expect(() => asyncCallbacker(() => {})).toThrow();
     });
 
     describe('Functionality', () => {
@@ -128,91 +124,97 @@ describe('Part 1: Sync/Async Callbacker', () => {
         asyncCallbacker(aSpy, bSpy);
 
         expect(aSpy.mock.calls).toEqual(
-          expect.arrayContaining(
-            [expect.arrayContaining([expect.any(Function)])]
-          )
+          expect.arrayContaining([
+            expect.arrayContaining([expect.any(Function)]),
+          ])
         );
         expect(bSpy.mock.calls).toEqual(
-          expect.arrayContaining(
-            [expect.arrayContaining([expect.any(Function)])]
-          )
+          expect.arrayContaining([
+            expect.arrayContaining([expect.any(Function)]),
+          ])
         );
       });
 
-      it('should still call B, even when we introduce a setTimeout that delays calling "done"', () => createRacifiedPromise(res => {
-        const aSpy = jest.fn((data, done) => {
-          setTimeout(() => {
-            done();
-          }, 50);
-        });
-        const bSpy = jest.fn(() => {
-          // This probably looks weird... We have to wait for this function to be called before testing these functions!
-          expect(aSpy.mock.calls).toEqual(
-            expect.arrayContaining(
-              [expect.arrayContaining([expect.any(Function)])]
-            )
-          );
-          expect(bSpy.mock.calls).toEqual(
-            expect.arrayContaining(
-              [expect.arrayContaining([expect.any(Function)])]
-            )
-          );
-          res();
-        });
+      it('should still call B, even when we introduce a setTimeout that delays calling "done"', () =>
+        createRacifiedPromise((res) => {
+          const aSpy = jest.fn((data, done) => {
+            setTimeout(() => {
+              done();
+            }, 50);
+          });
+          const bSpy = jest.fn(() => {
+            // This probably looks weird... We have to wait for this function to be called before testing these functions!
+            expect(aSpy.mock.calls).toEqual(
+              expect.arrayContaining([
+                expect.arrayContaining([expect.any(Function)]),
+              ])
+            );
+            expect(bSpy.mock.calls).toEqual(
+              expect.arrayContaining([
+                expect.arrayContaining([expect.any(Function)]),
+              ])
+            );
+            res();
+          });
 
-        asyncCallbacker(aSpy, bSpy);
-      }));
+          asyncCallbacker(aSpy, bSpy);
+        }));
 
-      it('B should be called with the data that A passes into "done"', () => createRacifiedPromise(res => {
-        const myRandomNumber = Math.random() * 100;
+      it('B should be called with the data that A passes into "done"', () =>
+        createRacifiedPromise((res) => {
+          const myRandomNumber = Math.random() * 100;
 
-        const aSpy = jest.fn((data, done) => {
-          setTimeout(() => {
-            done(myRandomNumber);
-          }, 50);
-        });
-        const bSpy = jest.fn(() => {
-          // This probably looks weird... We have to wait for this function to be called before testing these functions!
-          expect(aSpy.mock.calls).toEqual(
-            expect.arrayContaining(
-              [expect.arrayContaining([expect.any(Function)])]
-            )
-          );
-          expect(bSpy.mock.calls).toEqual(
-            expect.arrayContaining(
-              [expect.arrayContaining([myRandomNumber, expect.any(Function)])]
-            )
-          );
-          res();
-        });
+          const aSpy = jest.fn((data, done) => {
+            setTimeout(() => {
+              done(myRandomNumber);
+            }, 50);
+          });
+          const bSpy = jest.fn(() => {
+            // This probably looks weird... We have to wait for this function to be called before testing these functions!
+            expect(aSpy.mock.calls).toEqual(
+              expect.arrayContaining([
+                expect.arrayContaining([expect.any(Function)]),
+              ])
+            );
+            expect(bSpy.mock.calls).toEqual(
+              expect.arrayContaining([
+                expect.arrayContaining([myRandomNumber, expect.any(Function)]),
+              ])
+            );
+            res();
+          });
 
-        asyncCallbacker(aSpy, bSpy);
-      }));
+          asyncCallbacker(aSpy, bSpy);
+        }));
     });
 
-    xdescribe('Extra Credit asyncCallbacker', () => {
-      it('can receive any number of functions greater than 2 as an argument', () => createRacifiedPromise(res => {
-        const cbs = [(data, done) => setTimeout(() => {
-          done(1);
-        }, 25)];
+    describe('Extra Credit asyncCallbacker', () => {
+      it('can receive any number of functions greater than 2 as an argument', () =>
+        createRacifiedPromise((res) => {
+          const cbs = [
+            (data, done) =>
+              setTimeout(() => {
+                done(1);
+              }, 25),
+          ];
 
-        const randomNumOfFuncs = Math.ceil(Math.random() * 7) + 3;
+          const randomNumOfFuncs = Math.ceil(Math.random() * 7) + 3;
 
-        for (let i = 0; i < randomNumOfFuncs; ++i) {
-          cbs.push((data, done) => {
-            setTimeout(() => {
-              done(data * 2);
-            }, 25);
+          for (let i = 0; i < randomNumOfFuncs; ++i) {
+            cbs.push((data, done) => {
+              setTimeout(() => {
+                done(data * 2);
+              }, 25);
+            });
+          }
+
+          cbs.push((data) => {
+            expect(data).toEqual(2 ** randomNumOfFuncs);
+            res();
           });
-        }
 
-        cbs.push((data) => {
-          expect(data).toEqual(2 ** randomNumOfFuncs);
-          res();
-        });
-
-        asyncCallbacker(...cbs);
-      }));
+          asyncCallbacker(...cbs);
+        }));
     });
   });
 });
