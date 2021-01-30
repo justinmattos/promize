@@ -2,15 +2,18 @@ function Promize(exFunc) {
   if (typeof exFunc !== 'function') {
     throw 'BAD!';
   }
-  this.then = (fulfillFunc = () => {}) => {};
+  this.state = undefined;
+  this.then = (fulfillFunc = () => {}) => {
+    if (typeof fulfillFunc === 'function') fulfillFunc();
+  };
   this.catch = () => {};
-  const resolve = (val) => {
-    this.then(val);
+  const resolve = (...args) => {
+    this.then(args);
   };
-  const reject = () => {
-    this.catch();
+  const reject = (...args) => {
+    this.catch(args);
   };
-  exFunc(resolve, reject);
+  this.result = exFunc(resolve, reject);
 }
 
 module.exports = Promize;
