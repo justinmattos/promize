@@ -12,7 +12,7 @@ const createRacifiedPromise = (testFunc) =>
     new Promise((res) => testFunc(res)),
   ]);
 
-describe('Part 1: Sync/Async Callbacker', () => {
+xdescribe('Part 1: Sync/Async Callbacker', () => {
   describe('syncCallbacker', () => {
     it('should be a function', () => {
       expect(typeof syncCallbacker).toEqual('function');
