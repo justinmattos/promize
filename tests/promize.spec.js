@@ -36,6 +36,7 @@ describe('Part 3: Promize', () => {
   test('should call .then after the executor resolves', (done) => {
     const ourSecondPromise = new Promize((r) => {
       setTimeout(() => {
+        console.log(this);
         r();
       }, 100);
     });
@@ -49,12 +50,12 @@ describe('Part 3: Promize', () => {
   test('should call .then and pass the value into resolve upon resolution', (done) => {
     const ourThirdPromise = new Promize((r) => {
       setTimeout(() => {
-        r('pancakes');
+        r('bagels');
       }, 100);
     });
 
     ourThirdPromise.then((val) => {
-      expect(val).toBe('pancakes');
+      expect(val).toBe('bagels');
       done();
     });
   });
@@ -62,7 +63,7 @@ describe('Part 3: Promize', () => {
   test('can chain promise chains together', (done) => {
     const ourFourthPromise = new Promize((r) => {
       setTimeout(() => {
-        r('pancakes');
+        r('bagels');
       }, 100);
     });
 
@@ -71,7 +72,7 @@ describe('Part 3: Promize', () => {
         return val;
       })
       .then((val) => {
-        expect(val).toBe('pancakes');
+        expect(val).toBe('bagels');
         done();
       });
   });
@@ -90,7 +91,7 @@ describe('Part 3: Promize', () => {
   test('should wait for a promise to resolve in the chain before calling the next .then', (done) => {
     const ourFifthPromise = new Promize((r) => {
       setTimeout(() => {
-        r('pancakes');
+        r('bagels');
       }, 100);
     });
 
@@ -109,7 +110,7 @@ describe('Part 3: Promize', () => {
   test('should call catch if rejected', (done) => {
     const ourSixthPromise = new Promize((res, reject) => {
       setTimeout(() => {
-        reject('pancakes');
+        reject('bagels');
       }, 100);
     });
 
@@ -130,7 +131,7 @@ describe('Part 3: Promize', () => {
       .then(() => {
         return new Promize((res) => {
           setTimeout(() => {
-            res('pancakes');
+            res('bagels');
           }, 100);
         });
       })
