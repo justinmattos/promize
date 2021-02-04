@@ -114,7 +114,7 @@ function Promize(exFunc) {
     if (!this.isDone) {
       this.isDone = true;
       this.state = 'resolved';
-      console.log(`Changing ${this.value} to ${value} for `, this);
+      // console.log(`Changing ${this.value} to ${value} for `, this);
       this.value = value;
       let currFunc;
       while (this.fulfillMethods.length > 0) {
@@ -124,12 +124,10 @@ function Promize(exFunc) {
     }
   }.bind(this);
 
-  this.reject = function reject(reazon) {}.bind(this);
-
   this.then = function then(fulfillFunc, rejectFunc) {
     //need to account for fulfillFunc returning a promise to properly chain and allow for waiting
     if (!this.isDone) {
-      console.log(this.value, 'adding fulfill and reject methods');
+      // console.log(this.value, 'adding fulfill and reject methods');
       if (typeof fulfillFunc === 'function') {
         this.fulfillMethods.push(fulfillFunc);
       }
@@ -139,20 +137,65 @@ function Promize(exFunc) {
     } else {
       if (this.state === 'resolved') {
         if (typeof fulfillFunc === 'function') {
-          if (fulfillFunc(this.value) instanceof Promize) {
-            let newPromize = fulfillFunc(this.value);
+          let newPromize = fulfillFunc(this.value);
+          if (newPromize instanceof Promize) {
             newPromize.value = this.value;
             newPromize.fulfillMethods = [...this.fulfillMethods];
+            newPromize.rejectMethods = [...this.rejectMethods];
             this.fulfillMethods = [];
             console.log(newPromize);
             return newPromize;
           }
         }
       } else if (this.state === 'rejected') {
-        if (typeof rejectFunc === 'function') rejectFunc(this.value);
+        if (typeof rejectFunc === 'function') {
+          let newPromize = fulfillFunc(this.value);
+          if (newPromize instanceof Promize) {
+            newPromize.value = this.value;
+            newPromize.rejectMethods = [...this.rejectMethods];
+            this.rejectMethods = [];
+            return newPromize;
+          }
+        }
       }
     }
     return this;
+  }.bind(this);
+
+  this.reject = function reject(reazon) {
+    if (!this.isDone) {
+      this.isDone = true;
+      this.state = 'rejected';
+      this.value = reazon;
+      let currFunc;
+      while (this.rejectMethods.length > 0) {
+        currFunc = this.rejectMethods.shift();
+        console.log('test??');
+        this.catch(currFunc);
+      }
+    }
+  }.bind(this);
+
+  this.catch = function (rejectFunc) {
+    /*The function added to the Promize via the catch method is appearing in
+      the rejectMethods array but not being called after the third chained
+      Promize rejects. I think the issue is I don't have it set up to switch
+      from a resolved Promize to a rejected Promize for error handling.
+    */
+    if (!this.isDone) {
+      if (typeof rejectFunc === 'function') {
+        this.rejectMethods.push(rejectFunc);
+      }
+    } else {
+      console.log('test');
+      if (this.state === 'rejected') {
+        console.log('TEST');
+        if (typeof rejectFunc === 'function') {
+          console.log('TEST!!!!!!');
+          rejectFunc(this.value);
+        }
+      }
+    }
   }.bind(this);
 
   this.executor(this.resolve, this.reject);

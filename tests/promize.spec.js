@@ -1,31 +1,31 @@
 const Promize = require('../src/promize.js');
 
 describe('Part 3: Promize', () => {
-  it('should be able to be constructed into a promize instance', () => {
+  xit('should be able to be constructed into a promize instance', () => {
     const ourFirstPromise = new Promize(() => {});
 
     expect(ourFirstPromise instanceof Promize).toBe(true);
   });
 
-  it('should error if not passed a function executor', () => {
+  xit('should error if not passed a function executor', () => {
     expect(() => new Promize()).toThrow();
   });
 
-  test('should have an executor that is passed a resolve function as the first argument', (done) => {
+  xtest('should have an executor that is passed a resolve function as the first argument', (done) => {
     new Promize((resolve) => {
       expect(typeof resolve).toBe('function');
       done();
     });
   });
 
-  test('should have an executor that is passed a reject function as the second argument', (done) => {
+  xtest('should have an executor that is passed a reject function as the second argument', (done) => {
     new Promize((resolve, reject) => {
       expect(typeof reject).toBe('function');
       done();
     });
   });
 
-  test('should have no return values (void) for resolve and/or reject to make clear their return values dont matter', (done) => {
+  xtest('should have no return values (void) for resolve and/or reject to make clear their return values dont matter', (done) => {
     new Promize((resolve, reject) => {
       expect(resolve()).toBe(undefined);
       expect(reject()).toBe(undefined);
@@ -33,7 +33,7 @@ describe('Part 3: Promize', () => {
     });
   });
 
-  test('should call .then after the executor resolves', (done) => {
+  xtest('should call .then after the executor resolves', (done) => {
     const ourSecondPromise = new Promize((r) => {
       setTimeout(() => {
         r();
@@ -46,7 +46,7 @@ describe('Part 3: Promize', () => {
     });
   });
 
-  test('should call .then and pass the value into resolve upon resolution', (done) => {
+  xtest('should call .then and pass the value into resolve upon resolution', (done) => {
     const ourThirdPromise = new Promize((r) => {
       setTimeout(() => {
         r('bagels');
@@ -59,7 +59,7 @@ describe('Part 3: Promize', () => {
     });
   });
 
-  test('can chain promise chains together', (done) => {
+  xtest('can chain promise chains together', (done) => {
     const ourFourthPromise = new Promize((r) => {
       setTimeout(() => {
         r('bagels');
@@ -76,7 +76,7 @@ describe('Part 3: Promize', () => {
       });
   });
 
-  test('.then should return a promise', (done) => {
+  xtest('.then should return a promise', (done) => {
     const testThenableIsAPromize = new Promize((r) => {
       setTimeout(() => {
         r();
@@ -87,7 +87,7 @@ describe('Part 3: Promize', () => {
     done();
   });
 
-  test('should wait for a promise to resolve in the chain before calling the next .then', (done) => {
+  xtest('should wait for a promise to resolve in the chain before calling the next .then', (done) => {
     const ourFifthPromise = new Promize(function fifthExecutor(r) {
       setTimeout(() => {
         r('bagels');
@@ -119,7 +119,7 @@ describe('Part 3: Promize', () => {
     });
   });
 
-  xtest('should mark downstream promise rejected if something fails', (done) => {
+  test('should mark downstream promise rejected if something fails', (done) => {
     const ourSeventhPromise = new Promize((res) => {
       setTimeout(() => {
         res();
@@ -128,18 +128,20 @@ describe('Part 3: Promize', () => {
 
     ourSeventhPromise
       .then(() => {
-        return new Promize((res) => {
+        console.log('creating first new Promize (resolve)');
+        return new Promize(function firstEx(res) {
           setTimeout(() => {
             res('bagels');
           }, 100);
         });
       })
       .then((val) => {
+        console.log('creating second new Promize (reject)');
         return new Promize((res, rej) => {
           rej();
         });
       })
-      .catch((e) => {
+      .catch(function catchFunc(e) {
         expect(true).toBe(true);
         done();
       });
