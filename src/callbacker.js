@@ -26,7 +26,7 @@ const asyncCallbacker = (firstFunc, secondFunc, ...remArgs) => {
     if (step < 0) {
       step++;
       return secondFunc(newData, done);
-    } else if (step <= remArgs.length) {
+    } else if (step <= fin) {
       let nextFunc = remArgs[step];
       step++;
       return nextFunc(newData, done);
