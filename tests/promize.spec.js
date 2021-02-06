@@ -1,31 +1,31 @@
 const Promize = require('../src/promize.js');
 
 describe('Part 3: Promize', () => {
-  xit('should be able to be constructed into a promize instance', () => {
+  it('should be able to be constructed into a promize instance', () => {
     const ourFirstPromise = new Promize(() => {});
 
     expect(ourFirstPromise instanceof Promize).toBe(true);
   });
 
-  xit('should error if not passed a function executor', () => {
+  it('should error if not passed a function executor', () => {
     expect(() => new Promize()).toThrow();
   });
 
-  xtest('should have an executor that is passed a resolve function as the first argument', (done) => {
+  test('should have an executor that is passed a resolve function as the first argument', (done) => {
     new Promize((resolve) => {
       expect(typeof resolve).toBe('function');
       done();
     });
   });
 
-  xtest('should have an executor that is passed a reject function as the second argument', (done) => {
+  test('should have an executor that is passed a reject function as the second argument', (done) => {
     new Promize((resolve, reject) => {
       expect(typeof reject).toBe('function');
       done();
     });
   });
 
-  xtest('should have no return values (void) for resolve and/or reject to make clear their return values dont matter', (done) => {
+  test('should have no return values (void) for resolve and/or reject to make clear their return values dont matter', (done) => {
     new Promize((resolve, reject) => {
       expect(resolve()).toBe(undefined);
       expect(reject()).toBe(undefined);
@@ -33,7 +33,7 @@ describe('Part 3: Promize', () => {
     });
   });
 
-  xtest('should call .then after the executor resolves', (done) => {
+  test('should call .then after the executor resolves', (done) => {
     const ourSecondPromise = new Promize((r) => {
       setTimeout(() => {
         r();
@@ -46,7 +46,7 @@ describe('Part 3: Promize', () => {
     });
   });
 
-  xtest('should call .then and pass the value into resolve upon resolution', (done) => {
+  test('should call .then and pass the value into resolve upon resolution', (done) => {
     const ourThirdPromise = new Promize((r) => {
       setTimeout(() => {
         r('bagels');
@@ -59,7 +59,7 @@ describe('Part 3: Promize', () => {
     });
   });
 
-  xtest('can chain promise chains together', (done) => {
+  test('can chain promise chains together', (done) => {
     const ourFourthPromise = new Promize((r) => {
       setTimeout(() => {
         r('bagels');
@@ -76,7 +76,7 @@ describe('Part 3: Promize', () => {
       });
   });
 
-  xtest('.then should return a promise', (done) => {
+  test('.then should return a promise', (done) => {
     const testThenableIsAPromize = new Promize((r) => {
       setTimeout(() => {
         r();
@@ -87,7 +87,7 @@ describe('Part 3: Promize', () => {
     done();
   });
 
-  xtest('should wait for a promise to resolve in the chain before calling the next .then', (done) => {
+  test('should wait for a promise to resolve in the chain before calling the next .then', (done) => {
     const ourFifthPromise = new Promize(function fifthExecutor(r) {
       setTimeout(() => {
         r('bagels');
@@ -106,7 +106,7 @@ describe('Part 3: Promize', () => {
       });
   });
 
-  xtest('should call catch if rejected', (done) => {
+  test('should call catch if rejected', (done) => {
     const ourSixthPromise = new Promize((res, reject) => {
       setTimeout(() => {
         reject('bagels');
@@ -128,7 +128,6 @@ describe('Part 3: Promize', () => {
 
     ourSeventhPromise
       .then(() => {
-        console.log('creating first new Promize (resolve)');
         return new Promize(function firstEx(res) {
           setTimeout(() => {
             res('bagels');
@@ -136,8 +135,7 @@ describe('Part 3: Promize', () => {
         });
       })
       .then((val) => {
-        console.log('creating second new Promize (reject)');
-        return new Promize((res, rej) => {
+        return new Promize(function secondEx(res, rej) {
           rej();
         });
       })
@@ -147,7 +145,7 @@ describe('Part 3: Promize', () => {
       });
   });
 
-  xtest('should call downstream catches if a callback errors', (done) => {
+  test('should call downstream catches if a callback errors', (done) => {
     const ourFinalPromise = new Promize(() => {
       throw new Error('Oh no!');
     });

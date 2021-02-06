@@ -5,7 +5,7 @@ const {
   rejectedPromise,
 } = require('../src/promise.js');
 
-xdescribe('Part 2: Playing with Promises', () => {
+describe('Part 2: Playing with Promises', () => {
   it('expects that the "basicPromise" resolves to the string "basicPromise"', () => {
     return expect(basicPromise).resolves.toEqual('basicPromise');
   });
