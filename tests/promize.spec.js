@@ -88,7 +88,7 @@ describe('Part 3: Promize', () => {
   });
 
   test('should wait for a promise to resolve in the chain before calling the next .then', (done) => {
-    const ourFifthPromise = new Promize(function fifthExecutor(r) {
+    const ourFifthPromise = new Promize((r) => {
       setTimeout(() => {
         r('bagels');
       }, 100);
@@ -96,7 +96,7 @@ describe('Part 3: Promize', () => {
 
     ourFifthPromise
       .then(() => {
-        return new Promize(function pleaseBeTheRightFunction(r) {
+        return new Promize((r) => {
           setTimeout(() => r('waited'), 100);
         });
       })
@@ -128,18 +128,18 @@ describe('Part 3: Promize', () => {
 
     ourSeventhPromise
       .then(() => {
-        return new Promize(function firstEx(res) {
+        return new Promize((res) => {
           setTimeout(() => {
             res('bagels');
           }, 100);
         });
       })
       .then((val) => {
-        return new Promize(function secondEx(res, rej) {
+        return new Promize((res, rej) => {
           rej();
         });
       })
-      .catch(function catchFunc(e) {
+      .catch(function rejectHandler(e) {
         expect(true).toBe(true);
         done();
       });
